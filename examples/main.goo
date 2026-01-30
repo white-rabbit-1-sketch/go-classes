@@ -1,0 +1,77 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+	"time"
+)
+
+class User {
+	name  string
+	email string
+	level int
+
+	func constructor(name string, email string) {
+		this.name = name
+		this.email = strings.ToLower(email)
+		this.level = 1
+		logEvent("Created basic user: " + this.name)
+	}
+
+	func GetProfile() string {
+		return fmt.Sprintf("User: %s (Level: %d)", this.name, this.level)
+	}
+
+	func IsValidEmail() bool {
+		return strings.Contains(this.email, "@")
+	}
+}
+
+class Admin extends User {
+	permissions []string
+
+	func constructor(name string, email string, role string) {
+		this.name = name
+		this.email = email
+		this.level = 10
+		this.permissions = []string{"read", "write", "delete"}
+		logEvent("Created Admin: " + this.name + " with role: " + role)
+	}
+
+	func HasAccess(op string) bool {
+		for _, p := range this.permissions {
+			if p == op { return true }
+		}
+		return false
+	}
+
+	func GetProfile() string {
+		return fmt.Sprintf("ADMIN: %s (Access Level: %d, Ops: %d)",
+			this.name, this.level, len(this.permissions))
+	}
+}
+
+func main() {
+	logEvent("System bootup")
+
+	u := NewUser("Bob", "Bob@Google.com")
+	if u.IsValidEmail() {
+		fmt.Println(u.GetProfile())
+	}
+
+	fmt.Println("-------------------")
+
+	super := NewAdmin("Alice", "alice@system.io", "root")
+	fmt.Println(super.GetProfile())
+
+	op := "delete"
+	if super.HasAccess(op) {
+		fmt.Printf("Access GRANTED for operation: %s\n", op)
+	} else {
+		fmt.Printf("Access DENIED for operation: %s\n", op)
+	}
+}
+
+func logEvent(msg string) {
+	fmt.Printf("[%s] LOG: %s\n", time.Now().Format("15:04:05"), msg)
+}
